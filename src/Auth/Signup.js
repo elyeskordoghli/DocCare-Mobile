@@ -1,24 +1,58 @@
 import React, { useState } from 'react';
 import { ImageBackground, StyleSheet, Text, View, TextInput, Button, Alert, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function Signup() {
   const navigation = useNavigation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [confirmpassword, setConfirmPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
+  const signup = async () => {
+    try {
+      // Validation des champs
+      if (!email || !password || !confirmPassword) {
+        Alert.alert('Champs requis', 'Veuillez remplir tous les champs.');
+        return;
+      }
 
-  const onPressLogin = () => {
-    // Do something about login operation
-
+      if (password !== confirmPassword) {
+        Alert.alert('Mots de passe non identiques', 'Veuillez saisir des mots de passe identiques.');
+        return;
+      }
+      console.log('Email:', email);
+      console.log('Password:', password);
+      // Appel à l'API pour l'inscription
+      const response = await fetch('http://10.0.2.2:5149/api/User/NewUserSignUp', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          'Email': email,
+          'Password': password,
+        }),
+      });
+      if (response.ok) {
+        Alert.alert('Inscription réussie', 'Vous pouvez maintenant vous connecter.');
+        navigation.navigate('Auth'); // Redirection vers la page de connexion
+      } else {
+        const errorData = await response.json();
+        Alert.alert('Erreur lors de l\'inscription', errorData.message || 'Veuillez réessayer.');
+      }
+    } catch (error) {
+      console.error('Erreur lors de la requête:', error);
+      Alert.alert('Erreur réseau', 'Veuillez vérifier votre connexion Internet.');
+    }
   };
-  const onPressForgotPassword = () => {
-    // Do something about forgot password operation
-  };
+
   const onPressSignUp = () => {
     // Do something about signup operation
-    navigation.navigate('Signup');
+    signup();
+    Alert.alert('Login Info', `Email: ${email}\nPassword: ${password}`);
+    navigation.navigate('Auth');
 
   };
   const onPressCancel = () => {
@@ -49,7 +83,7 @@ export default function Signup() {
             style={styles.inputText}
             placeholder="Email"
             placeholderTextColor="#003f5c"
-            onChangeText={text => setEmail(text)}
+            onChangeText={setEmail}
 
           />
         </View>
@@ -59,7 +93,7 @@ export default function Signup() {
             secureTextEntry
             placeholder="Password"
             placeholderTextColor="#003f5c"
-            onChangeText={text => setPassword(text)}
+            onChangeText={setPassword}
 
           />
         </View>
@@ -69,12 +103,12 @@ export default function Signup() {
             secureTextEntry
             placeholder="Confirm Password"
             placeholderTextColor="#003f5c"
-            onChangeText={text => setConfirmPassword(text)}
+            onChangeText={setConfirmPassword}
 
           />
         </View>
         <TouchableOpacity
-          onPress={onPressLogin}
+          onPress={onPressSignUp}
           style={styles.loginBtn}>
           <Text style={styles.loginText}>SIGNUP</Text>
         </TouchableOpacity>
@@ -117,9 +151,9 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, 0.7)',
     borderRadius: 30,
 
-     // Semi-transparent white background
+    // Semi-transparent white background
 
-    
+
   },
 
   buttonContainer: {

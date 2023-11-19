@@ -7,8 +7,33 @@ export default function Auth() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
+  // Exemple de requête pour le login
+const login = async (email, password) => {
+  try {
+    const response = await fetch('http://10.0.2.2:5149/api/User/Login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        'Email': email,
+        'Password': password,
+      }),
+    });
+
+    const data = await response.json();
+
+    // Traitez la réponse du backend (par exemple, vérifiez les informations d'authentification)
+    console.log(data);
+  } catch (error) {
+    console.error('Erreur lors de la requête:', error);
+  }
+};
+
+
   const onPressLogin = () => {
     // Do something about login operation
+    login(email, password);
     navigation.navigate('Home');
 
 
@@ -21,16 +46,6 @@ export default function Auth() {
     navigation.navigate('Signup');
 
   };
-
-  const handleLogin = () => {
-    // Afficher une alerte avec l'email et le mot de passe saisis
-    Alert.alert('Login Info', `Email: ${email}\nPassword: ${password}`);
-  };
-
-  const handleCreateUser = () => {
-    navigation.navigate('Signup');
-  };
-
   return (
     <ImageBackground
       source={require("../images/back_ground.png")}
@@ -45,7 +60,7 @@ export default function Auth() {
             style={styles.inputText}
             placeholder="Email"
             placeholderTextColor="#003f5c"
-            onChangeText={text => setEmail(text)}
+            onChangeText={setEmail}
 
           />
         </View>
@@ -55,7 +70,7 @@ export default function Auth() {
             secureTextEntry
             placeholder="Password"
             placeholderTextColor="#003f5c"
-            onChangeText={text => setPassword(text)}
+            onChangeText={setPassword}
 
           />
         </View>
