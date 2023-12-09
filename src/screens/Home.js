@@ -11,7 +11,23 @@ import React from 'react';
 import Header from '../components/Header';
 import LinearGradient from 'react-native-linear-gradient';
 import CommonBtn from '../components/CommonBtn';
-const Home = ({navigation}) => {
+const Home = ({ navigation }) => {
+  const categories = [
+    { id: '1', image: require('../images/cardiology.png'), name: 'Cardiology', availability: true },
+    { id: '2', image: require('../images/pulmonlogy.png'), name: 'Pulmonlogy', availability: false },
+    { id: '2', image: require('../images/Dental_care.png'), name: 'Dental Care', availability: false },
+
+    // Add more categories as needed
+  ];
+
+  const onPressApplyPrediction = (categoryId) => {
+    // Navigate to the form page for the selected category
+    navigation.navigate('PredictionForm', { categoryId });
+  };
+  const onPressBookAppointment= () => {
+    // Navigate to the form page for the selected category
+    navigation.navigate('BookAppointment');
+  };
   return (
     <View style={styles.container}>
       <ScrollView style={styles.container}>
@@ -22,32 +38,32 @@ const Home = ({navigation}) => {
             style={styles.banner}
           />
           <Text style={styles.heading}>Select Category</Text>
-          <View style={{marginTop: 20}}>
+          <View style={{ marginTop: 20 }}>
             <FlatList
-              data={[1, 1, 1, 1, 1, 1, 1]}
+              data={categories}
               horizontal
               showsHorizontalScrollIndicator={false}
-              renderItem={({item, index}) => {
-                return (
-                  <TouchableOpacity>
-                    {/* <LinearGradient
-                      colors={['#009FFD', '#2A2A72']}
-                      style={styles.linearGradient}>*/}
-                      <Text style={styles.catName}>
-                        {'Category ' + index + 1}
-                      </Text>
-                    {/* </LinearGradient>  */}
+              renderItem={({ item }) => (
+                <View style={styles.categoryItem}>
+                  <Image source={item.image} style={styles.categoryImage} />
+                  <Text style={styles.categoryName}>{item.name}</Text>
+
+                  <TouchableOpacity
+                    onPress={() => onPressApplyPrediction(item.id)}
+                    style={styles.categoryButton}>
+                    <Text>Apply Prediction</Text>
                   </TouchableOpacity>
-                );
-              }}
+                </View>
+              )}
+              keyExtractor={(item) => item.id}
             />
           </View>
-           <Text style={styles.heading}>Top Rated Doctors</Text>
-          <View style={{marginTop: 20, alignItems: 'center'}}>
+          <Text style={styles.heading}>Top Rated Doctors</Text>
+          <View style={{ marginTop: 20, alignItems: 'center' }}>
             <FlatList
               numColumns={2}
               data={[1, 1, 1, 1, 1, 1]}
-              renderItem={({item, index}) => {
+              renderItem={({ item, index }) => {
                 return (
                   <View style={styles.docItem}>
                     <Image
@@ -66,7 +82,12 @@ const Home = ({navigation}) => {
                       ]}>
                       {index / 2 == 0 ? 'Available' : 'Busy'}
                     </Text>
-                    <CommonBtn
+                    <TouchableOpacity
+                      onPress={onPressBookAppointment}
+                      style={styles.SignUpBtn}>
+                      <Text>Book Appointment</Text>
+                    </TouchableOpacity>
+                    {/* <CommonBtn
                       w={150}
                       h={40}
                       status={index / 2 == 0 ? true : false}
@@ -76,12 +97,12 @@ const Home = ({navigation}) => {
                           navigation.navigate('BookAppointment');
                         }
                       }}
-                    />
+                    /> */}
                   </View>
                 );
               }}
             />
-          </View> 
+          </View>
         </View>
       </ScrollView>
       <View style={styles.bottomView}>
@@ -150,6 +171,40 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '700',
   },
+  categoryItem: {
+    margin: 10,
+    padding: 10,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    alignItems: 'center',
+  },
+  categoryImage: {
+    width: 100,
+    height: 100,
+    resizeMode: 'cover',
+    borderRadius: 50,
+  },
+  categoryName: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginTop: 5,
+  },
+  categorySpecialist: {
+    fontSize: 14,
+    color: '#555',
+  },
+  categoryStatus: {
+    fontSize: 12,
+    marginTop: 5,
+  },
+  categoryButton: {
+    marginTop: 10,
+    padding: 8,
+    backgroundColor: '#65aad7',
+    borderRadius: 5,
+    alignItems: 'center',
+  },
   docItem: {
     width: '45%',
 
@@ -203,5 +258,16 @@ const styles = StyleSheet.create({
   bottomIcon: {
     width: 30,
     height: 30,
+  },
+  SignUpBtn: {
+    width: "80%",
+    backgroundColor: "#65aad7",
+    borderRadius: 25,
+    height: 50,
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 10,
+    marginLeft: 20,
+    marginBottom: 10
   },
 });

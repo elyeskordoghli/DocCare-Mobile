@@ -25,8 +25,17 @@ const login = async (email, password) => {
 
     // Traitez la réponse du backend (par exemple, vérifiez les informations d'authentification)
     console.log(data);
+    if (response.ok) {
+      // Connexion réussie
+      Alert.alert('Connexion réussie', 'Bienvenue !');
+      navigation.navigate('Home'); // Rediriger vers la page d'accueil
+    } else {
+      // Connexion échouée
+      Alert.alert('Connexion échouée', 'Vérifiez votre email et votre mot de passe.');
+    }
   } catch (error) {
     console.error('Erreur lors de la requête:', error);
+    Alert.alert('Erreur réseau', 'Veuillez vérifier votre connexion Internet.');
   }
 };
 
@@ -34,7 +43,6 @@ const login = async (email, password) => {
   const onPressLogin = () => {
     // Do something about login operation
     login(email, password);
-    navigation.navigate('Home');
 
 
   };

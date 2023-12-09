@@ -12,6 +12,7 @@ import CallAmb from './screens/CallAmb';
 import Welcome from './screens/Welcome';
 import Auth from './Auth/Auth';
 import Signup from './Auth/Signup';
+import PredictionForm from './screens/PredictionForm';
 const Stack = createStackNavigator();
 const AppNavigator = () => {
   return (
@@ -65,6 +66,11 @@ const AppNavigator = () => {
         <Stack.Screen
           component={CallAmb}
           name="CallAmb"
+          options={{ headerShown: false }}
+        />
+         <Stack.Screen
+          component={PredictionForm}
+          name="PredictionForm"
           options={{ headerShown: false }}
         />
       </Stack.Navigator>
