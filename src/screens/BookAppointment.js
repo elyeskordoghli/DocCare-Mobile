@@ -14,6 +14,7 @@ import Header from '../components/Header';
 import { Calendar, LocaleConfig } from 'react-native-calendars';
 import * as ImagePicker from 'expo-image-picker';
 
+import { Icon } from 'react-native-elements';
 
 LocaleConfig.locales['fr'] = {
   monthNames: [
@@ -61,25 +62,38 @@ LocaleConfig.defaultLocale = 'fr';
 
 let DaysList = [];
 
-const BookAppointment = ({ navigation }) => {
+const BookAppointment = ({ route, navigation }) => {
 
-  const [images, setImages] = useState(null);
+  const [imagrSource, setImageSource] = useState(null);
+  const { doctorId, doctorName, doctorSpecialty } = route.params;
 
-  const pickImages = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
+  console.log("docn", doctorName);
+  console.log("doctorSpecialty", doctorSpecialty);
+
+
+
+  const uploadImage = async () => {
+    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+    if (permissionResult.granted === false) {
+      console.log('Permission to access camera roll is required!');
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
-      aspect: [4, 3],
+      aspect: [1, 1],
       quality: 1,
-      multiple: true, // Autoriser la sélection de plusieurs images
     });
 
-    console.log(result);
+    if (!result.cancelled) {
 
-    if (!result.canceled) {
-      setImages(result.assets);
+    // Use the new file name
+    setImageSource(result.uri);
     }
   };
+
 
 
 
@@ -107,6 +121,26 @@ const BookAppointment = ({ navigation }) => {
       { sloT: '02:00-04:00PM' },
     ],
     '2023-11-21': [
+      { sloT: '09:00-11:00AM' },
+      { sloT: '01:00-03:00PM' },
+      { sloT: '04:00-06:00PM' },
+    ],
+    '2023-12-13': [
+      { sloT: '10:00-12:00PM' },
+      { sloT: '12:00-02:00PM' },
+      { sloT: '02:00-04:00PM' },
+    ],
+    '2023-12-12': [
+      { sloT: '09:00-11:00AM' },
+      { sloT: '01:00-03:00PM' },
+      { sloT: '04:00-06:00PM' },
+    ],
+    '2023-12-13': [
+      { sloT: '10:00-12:00PM' },
+      { sloT: '12:00-02:00PM' },
+      { sloT: '02:00-04:00PM' },
+    ],
+    '2023-12-14': [
       { sloT: '09:00-11:00AM' },
       { sloT: '01:00-03:00PM' },
       { sloT: '04:00-06:00PM' },
@@ -158,10 +192,20 @@ const BookAppointment = ({ navigation }) => {
       formData.append('prenom', prenom);
       formData.append('DateN', DateN);
       formData.append('Adresse', Adresse);
-      formData.append('Num', Num);// Vous pouvez ajuster le statut selon vos besoins
-      // formData.append('DossierMedical', dossierMedicalFile); // Ajoutez le fichier médical ici
-      formData.append('DossierMedical', images);
+      formData.append('Num', Num);
+      if (imagrSource) {
+        // If imagrSource is a file URI, get the file name and create a new file object
+        const fileName = imagrSource.split('/').pop();
+        const fileType = 'application/zip'; // Change this to the appropriate content type
 
+        const file = {
+          uri: imagrSource,
+          name: fileName,
+          type: fileType,
+        };// Vous pouvez ajuster le statut selon vos besoins
+      // formData.append('DossierMedical', dossierMedicalFile); // Ajoutez le fichier médical ici
+      formData.append('DossierMedical', file);
+    }
       try {
         const response = await fetch('http://10.0.2.2:5149/api/Consultation/Create', {
           method: 'POST',
@@ -193,15 +237,21 @@ const BookAppointment = ({ navigation }) => {
           icon={require('../images/back.png')}
           title={'Book Appointment'}
         />
+
+        {/* <View style={styles.rightContainer}>
+            <Text style={styles.name}>Doctor Jack</Text>
+            <Text style={styles.spcl}>Skin Doctor</Text>
+          </View> */}
         <View style={styles.headerContainer}>
           <View style={styles.leftContainer}>
             <Image source={require('../images/doctor.png')} style={styles.docImg} />
           </View>
           <View style={styles.rightContainer}>
-            <Text style={styles.name}>Doctor Jack</Text>
-            <Text style={styles.spcl}>Skin Doctor</Text>
+            <Text style={styles.name}>{doctorName}</Text>
+            <Text style={styles.spcl}>{doctorSpecialty}</Text>
           </View>
         </View>
+
         <Text style={styles.heading}>Select Date</Text>
         <View>
           <Calendar
@@ -222,7 +272,7 @@ const BookAppointment = ({ navigation }) => {
               dayTextColor: '#2d4150',
               textDisabledColor: '#d9e',
             }}
-            current={'2023-11-20'}
+            current={'2023-12-13'}
             onDayPress={handleDayPress}
             markedDates={{
               [selectedDate]: {
@@ -308,13 +358,18 @@ const BookAppointment = ({ navigation }) => {
               style={styles.nameInput}
               placeholder={'Enter Last Name'}
               onChangeText={setPrenom} />
-            <Text style={styles.heading}>Medical field</Text>
-            <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-              <Button title="Pick images from camera roll" onPress={pickImages} />
-              {images && images.length > 0 && images.map((img, index) => (
-                <Image key={index} source={{ uri: img.uri }} style={{ width: 200, height: 200 }} />
-              ))}
-            </View>
+            <TouchableOpacity
+              onPress={uploadImage}
+            >
+              <Text style={styles.heading}>Medical field <Icon name="attach-outline" type="ionicon" /></Text>
+
+
+            </TouchableOpacity>
+
+            <Image
+              source={{ uri: imagrSource }}
+              style={{ marginLeft: 95, width: 200, height: 200 }}
+            />
 
 
             {/* Ajoutez d'autres champs selon vos besoins */}

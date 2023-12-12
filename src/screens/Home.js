@@ -7,10 +7,12 @@ import {
   TouchableOpacity,
   ScrollView,
 } from 'react-native';
-import React from 'react';
+
 import Header from '../components/Header';
 import LinearGradient from 'react-native-linear-gradient';
 import CommonBtn from '../components/CommonBtn';
+import React, { useEffect, useState } from 'react';
+
 const Home = ({ navigation }) => {
   const categories = [
     { id: '1', image: require('../images/cardiology.png'), name: 'Cardiology', availability: true },
@@ -24,10 +26,28 @@ const Home = ({ navigation }) => {
     // Navigate to the form page for the selected category
     navigation.navigate('PredictionForm', { categoryId });
   };
-  const onPressBookAppointment= () => {
+  const onPressBookAppointment = () => {
     // Navigate to the form page for the selected category
     navigation.navigate('BookAppointment');
   };
+  const [doctors, setDoctors] = useState([]);
+
+  // Fetch doctors data from your API
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch('http://10.0.2.2:5149/api/Doctor/getAll');
+        const result = await response.json();
+        console.log("doc", result)
+        setDoctors(result.data);
+        console.log("lllllllllllll",doctors);
+      } catch (error) {
+        console.error('Error fetching doctors:', error);
+      }
+    };
+
+    fetchData();
+  }, []);
   return (
     <View style={styles.container}>
       <ScrollView style={styles.container}>
@@ -62,50 +82,42 @@ const Home = ({ navigation }) => {
           <View style={{ marginTop: 20, alignItems: 'center' }}>
             <FlatList
               numColumns={2}
-              data={[1, 1, 1, 1, 1, 1]}
-              renderItem={({ item, index }) => {
-                return (
-                  <View style={styles.docItem}>
-                    <Image
-                      source={require('../images/doctor.png')}
-                      style={styles.docImg}
-                    />
-                    <Text style={styles.docName}>Doctor {index + 1}</Text>
-                    <Text style={styles.docSpl}>Skin Specialist</Text>
-                    <Text
-                      style={[
-                        styles.status,
-                        {
-                          color: index / 2 == 0 ? 'green' : 'red',
-                          opacity: index / 2 == 0 ? 1 : 0.5,
-                        },
-                      ]}>
-                      {index / 2 == 0 ? 'Available' : 'Busy'}
-                    </Text>
-                    <TouchableOpacity
-                      onPress={onPressBookAppointment}
-                      style={styles.SignUpBtn}>
-                      <Text>Book Appointment</Text>
-                    </TouchableOpacity>
-                    {/* <CommonBtn
-                      w={150}
-                      h={40}
-                      status={index / 2 == 0 ? true : false}
-                      txt={'Book Appointment'}
-                      onClick={() => {
-                        if (index / 2 == 0) {
-                          navigation.navigate('BookAppointment');
-                        }
-                      }}
-                    /> */}
-                  </View>
-                );
-              }}
             />
           </View>
+
+
+          <View style={{ marginTop: 20, alignItems: 'center' }}>
+            <FlatList
+              data={doctors}
+              keyExtractor={(item) => item.id.toString()}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                onPress={() => {
+                  // Navigate to the BookAppointment screen with doctor details
+                  navigation.navigate('BookAppointment', {
+                    doctorId: item.id,
+                    doctorName: `${item.nom} ${item.prenom}`,
+                    doctorSpecialty: item.specialite?.nom,
+                   
+                  });
+                }}
+                  style={styles.docItem}>
+                  <Image source={require('../images/doctor.png')} style={styles.docImg} />
+                  <View style={styles.rightContainer}>
+                    <Text style={styles.docName}>{`${item.nom} ${item.prenom}`}</Text>
+                    <Text style={styles.docSpl}>{item.specialite?.nom}</Text>
+                  </View>
+                </TouchableOpacity>
+              )}
+              numColumns={2}
+            />
+          </View>
+
+
+
         </View>
       </ScrollView>
-      <View style={styles.bottomView}>
+      {/* <View style={styles.bottomView}>
         <TouchableOpacity
           onPress={() => {
             navigation.navigate('Completed');
@@ -133,7 +145,7 @@ const Home = ({ navigation }) => {
             style={styles.bottomIcon}
           />
         </TouchableOpacity>
-      </View>
+      </View> */}
     </View>
   );
 };

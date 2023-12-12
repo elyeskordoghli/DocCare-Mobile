@@ -1,65 +1,97 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ImageBackground, StyleSheet, Text, View, TextInput, Button, Alert, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import * as Location from 'expo-location';
 
 export default function Auth() {
   const navigation = useNavigation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [location, setLocation] = useState(null);
+
+  useEffect(() => {
+    // Get user's location when the component mounts
+    getLocation();
+  }, []);
+
+  const getLocation = async () => {
+    try {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permission to access location was denied');
+        return;
+      }
+
+      let location = await Location.getCurrentPositionAsync({});
+      setLocation(location.coords);
+      console.log('Latitude:', location.coords.latitude);
+      console.log('Longitude:', location.coords.longitude);
+    } catch (error) {
+      console.error('Error getting location:', error);
+    }
+  };
 
   // Exemple de requête pour le login
-const login = async (email, password) => {
-  try {
-    const response = await fetch('http://192.168.1.16:5149/api/User/Login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        'Email': email,
-        'Password': password,
-      }),
-    });
 
-    const data = await response.json();
 
-    // Traitez la réponse du backend (par exemple, vérifiez les informations d'authentification)
-    console.log(data);
-    if (response.ok) {
-      // Connexion réussie
-      Alert.alert('Connexion réussie', 'Bienvenue !');
-      navigation.navigate('Home'); // Rediriger vers la page d'accueil
-    } else {
-      // Connexion échouée
-      Alert.alert('Connexion échouée', 'Vérifiez votre email et votre mot de passe.');
+  const login = async (email, password) => {
+    try {
+      const requestBody = {
+        Email: email,
+        Password: password,
+      };
+
+      // Include location if available
+      if (location) {
+        requestBody.Latitude = location.latitude;
+        requestBody.Longitude = location.longitude;
+      }
+
+      const response = await fetch('http://10.0.2.2:5149/api/User/Login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      const data = await response.json();
+
+      // Traitez la réponse du backend (par exemple, vérifiez les informations d'authentification)
+      console.log(data);
+      if (response.ok) {
+        // Connexion réussie
+        Alert.alert('Connexion réussie', 'Bienvenue !');
+        navigation.navigate('Home'); // Rediriger vers la page d'accueil
+      } else {
+        // Connexion échouée
+        Alert.alert('Connexion échouée', 'Vérifiez votre email et votre mot de passe.');
+      }
+    } catch (error) {
+      console.error('Erreur lors de la requête:', error);
+      Alert.alert('Erreur réseau', 'Veuillez vérifier votre connexion Internet.');
     }
-  } catch (error) {
-    console.error('Erreur lors de la requête:', error);
-    Alert.alert('Erreur réseau', 'Veuillez vérifier votre connexion Internet.');
-  }
-};
-
+  };
 
   const onPressLogin = () => {
     // Do something about login operation
     login(email, password);
-
-
   };
+
   const onPressForgotPassword = () => {
     // Do something about forgot password operation
   };
+
   const onPressSignUp = () => {
     // Do something about signup operation
     navigation.navigate('Signup');
-
   };
+
   return (
     <ImageBackground
       source={require("../images/back_ground.png")}
       style={styles.container}
       blurRadius={2}
-
     >
       <View style={styles.formContainer}>
         <Text style={styles.title}> Login</Text>
@@ -69,7 +101,6 @@ const login = async (email, password) => {
             placeholder="Email"
             placeholderTextColor="#003f5c"
             onChangeText={setEmail}
-
           />
         </View>
         <View style={styles.inputView}>
@@ -79,7 +110,6 @@ const login = async (email, password) => {
             placeholder="Password"
             placeholderTextColor="#003f5c"
             onChangeText={setPassword}
-
           />
         </View>
         <TouchableOpacity
@@ -93,7 +123,6 @@ const login = async (email, password) => {
           <Text style={styles.loginText}>SIGNUP</Text>
         </TouchableOpacity>
       </View>
-
     </ImageBackground>
   );
 }
