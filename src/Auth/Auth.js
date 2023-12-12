@@ -10,7 +10,7 @@ export default function Auth() {
   // Exemple de requête pour le login
 const login = async (email, password) => {
   try {
-    const response = await fetch('http://10.0.2.2:5149/api/User/Login', {
+    const response = await fetch('http://192.168.1.16:5149/api/User/Login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

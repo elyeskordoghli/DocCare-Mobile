@@ -25,7 +25,7 @@ export default function Signup() {
       console.log('Email:', email);
       console.log('Password:', password);
       // Appel à l'API pour l'inscription
-      const response = await fetch('http://10.0.2.2:5149/api/User/NewUserSignUp', {
+      const response = await fetch('http://192.168.1.16:5149/api/User/NewUserSignUp', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
