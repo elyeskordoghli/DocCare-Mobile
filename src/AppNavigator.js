@@ -13,6 +13,7 @@ import Welcome from './screens/Welcome';
 import Auth from './Auth/Auth';
 import Signup from './Auth/Signup';
 import PredictionForm from './screens/PredictionForm';
+import PredictionResult from './screens/PredictionResult';
 const Stack = createStackNavigator();
 const AppNavigator = () => {
   return (
@@ -51,6 +52,11 @@ const AppNavigator = () => {
         <Stack.Screen
           component={Success}
           name="Success"
+          options={{ headerShown: false }}
+        />
+         <Stack.Screen
+          component={PredictionResult}
+          name="PredictionResult"
           options={{ headerShown: false }}
         />
         <Stack.Screen
