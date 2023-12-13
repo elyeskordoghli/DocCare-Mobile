@@ -296,13 +296,13 @@ const BookAppointment = ({ route, navigation }) => {
                     <TouchableOpacity
                       style={[
                         styles.timeSlot,
-                        { borderColor: index == selectedSlot ? 'blue' : 'black' },
+                        { borderColor: index == selectedSlot ? 'red' : 'black' },
                       ]}
                       onPress={() => {
                         setSelectedSlot(index);
                       }}>
                       <Text
-                        style={{ color: index == selectedSlot ? 'blue' : 'black' }}>
+                        style={{ color: index == selectedSlot ? 'red' : 'black' }}>
                         {item.sloT}
                       </Text>
                     </TouchableOpacity>
